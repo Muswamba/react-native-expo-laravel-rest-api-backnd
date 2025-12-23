@@ -5,14 +5,18 @@
 
 import API from "../../services/api/API";
 import { useAuthStore } from "../../store/auth.store";
+const { setUser, setToken, setRefreshToken } = useAuthStore.getState();
 
 export const login = async (email: string, password: string) => {
    const response = await API.post("/login", { email, password });
-   const { access_token, user } = response.data;
+   const { access_token, user, refresh_token } = response.data;
+
    if (access_token && user) {
-      useAuthStore.getState().setToken(access_token);
-      useAuthStore.getState().setUser(user);
+      setUser(user);
+      setToken(access_token);
+      setRefreshToken(refresh_token);
    }
+
    return response.data;
 };
 
@@ -23,10 +27,12 @@ export const register = async (
    password: string
 ) => {
    const response = await API.post("/register", { name, email, password });
-   const { access_token, user } = response.data;
+   const { access_token, user, refresh_token } = response.data;
+
    if (access_token && user) {
-      useAuthStore.getState().setToken(access_token);
-      useAuthStore.getState().setUser(user);
+      setUser(user);
+      setToken(access_token);
+      setRefreshToken(refresh_token);
    }
 
    return response.data;
@@ -37,17 +43,6 @@ export const logout = async () => {
    useAuthStore.getState().logout();
 
    await API.post("/logout");
-};
-
-// Refresh Token
-export const refreshToken = async () => {
-   const response = await API.post("/refresh-token");
-   const { access_token, user } = response.data;
-   if (access_token && user) {
-      useAuthStore.getState().setToken(access_token);
-      useAuthStore.getState().setUser(user);
-   }
-   return response.data;
 };
 
 // Forgot Password
